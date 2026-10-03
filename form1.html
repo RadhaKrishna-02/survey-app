@@ -1,0 +1,9 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Form 1</title><link rel="stylesheet" href="css/style.css"></head><body><div id="nav"></div><main id="app" class="wrap"></main><script src="js/data.js"></script><script src="js/te.js"></script><script src="js/app.js"></script><script>
+Form.run({id:'form1',title:'Form 1: General location and area information',next:'form2',sections:[
+ {title:'Basic details',fields:[F.dt('date','Date of data collection',{req:true,def:'today'}),F.tx('collector','Name of data collector',{req:true,def:'user'}),
+  F.sel('state','State',Object.keys(DIST),{req:true,def:'state',rs:'district'}),F.sel('district','District',d=>DIST[d.state]||[],{req:true,def:'district'}),F.tx('taluka','Taluka',{req:true,def:'taluka'}),F.tx('village','Village / Town',{req:true,def:'village'}),F.tx('gp','Gram Panchayat / Municipality'),F.tx('ward','Ward number'),F.tx('vcode','Village / Town code')]},
+ {title:'Location and settlement',fields:[F.gps('gps','GPS location (latitude and longitude)',{req:true}),
+  F.rad('settle','Type of settlement',['Rural Area','Metro Area','Vanavasi Area','Municipal / Municipal Corporation Area','Other'],{req:true}),
+  F.rad('census','Area according to census classification',['Rural','Urban'],{req:true}),F.nm('sqkm','Total area (sq. km.)'),F.tx('hamlet','Main settlement / hamlet / para'),F.ta('notes','Other notes')]}]});
+
+</script></body></html>

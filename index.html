@@ -1,0 +1,42 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Home</title><link rel="stylesheet" href="css/style.css"></head><body><div id="nav"></div><main id="app" class="wrap"></main><script src="js/data.js"></script><script src="js/te.js"></script><script src="js/app.js"></script><script>
+if(nav('home')){
+const app=$('#app'),NAMES=['Personal / General location','Religious composition','Important religious place','Cemetery and cremation sites','Political representation','Mortality and death rates','Scheduled Tribe area'];
+const status=(A,n)=>{const r=recs().filter(x=>x.area===A.id&&x.form==='form'+n);return !r.length?['Not started','']:r.every(x=>x.status==='submitted')?['Completed','submitted']:['In progress','draft']};
+const setSync=(id,s)=>{const a=recs();a.find(r=>r.id===id).sync=s;S.s('recs',a)};
+function pickRole(){app.innerHTML=`<h1>${t('Choose your role')}</h1><p class=note>${t('Select one to continue. You can change it later.')}</p><div class=grid>
+ <div class=card><h2>${t('Area DC')}</h2><p>${t('Fills Forms 1 to 7 about a village or town.')}</p><button class=btn data-m=area>${t('Continue as Area DC')}</button></div>
+ <div class=card><h2>${t('People DC')}</h2><p>${t('Fills Form 8, one survey for each person.')}</p><button class=btn data-m=people>${t('Continue as People DC')}</button></div></div>`;
+ app.onclick=e=>{const b=e.target.closest('[data-m]');if(b){S.s('mode',b.dataset.m);toast(t('Role selected: {0}',t(roleName(b.dataset.m))));location.reload()}}}
+function newArea(){const area=S.g('mode')==='area';app.innerHTML=`<div class=card><h2>${t('Register a village or town')}</h2><form id=af><div class=fld><label for=an>${t('Village / Town')} *</label><input id=an></div>
+ <div class=fld><label for=ast>${t('State')} *</label><select id=ast><option value="">${t('Select...')}</option>${Object.keys(DIST).map(s=>`<option value="${s}">${t(s)}</option>`).join('')}</select></div>
+ <div class=fld><label for=ad>${t('District')} *</label><select id=ad><option value="">${t('Select...')}</option></select></div>
+ <div class=fld><label for=at>${t('Taluka')}</label><input id=at></div>
+ ${area?`<label class=opt><input type=checkbox id=ab>${t('This is a tribal (Scheduled Tribe) area. Form 7 becomes mandatory.')}</label>`:''}
+ <p><button class=btn>${t('Save area')}</button> ${areas().length?`<button type=button class=btn2 id=ac>${t('Cancel')}</button>`:''}</p></form></div>`;
+ $('#ast').onchange=e=>{$('#ad').innerHTML=`<option value="">${t('Select...')}</option>`+(DIST[e.target.value]||[]).map(d=>`<option>${d}</option>`).join('')};
+ $('#af').onsubmit=e=>{e.preventDefault();const n=$('#an').value.trim(),s=$('#ast').value,d=$('#ad').value;if(!n||!s||!d)return toast(t('Enter the village name, state and district'),true);
+  if(areas().some(a=>a.name.toLowerCase()===n.toLowerCase()&&a.district===d))return toast(t('This area is already registered. Select it from the list.'),true);
+  const a={id:Math.random().toString(36).slice(2,6).toUpperCase(),name:n,state:s,district:d,taluka:$('#at').value.trim(),tribal:!!($('#ab')&&$('#ab').checked)};S.s('areas',areas().concat(a));S.s('area',a.id);toast(t('Area saved: {0}',n));location.reload()};
+ if($('#ac'))$('#ac').onclick=draw}
+async function sync(){if(!navigator.onLine)return toast(t('No internet. Records stay safely on this device.'),true);
+ const q=recs().filter(r=>r.status==='submitted'&&r.sync!=='done');if(!q.length)return toast(t('Everything is already synchronized'));toast(t('Synchronization started: {0} records',q.length));
+ for(const r of q){for(const s of ['uploading','processing']){if(!navigator.onLine){setSync(r.id,'failed');draw();toast(t('Connection lost. {0} failed and will retry.',r.id),true);return}setSync(r.id,s);draw();await wait(650)}setSync(r.id,'done');draw()}
+ S.s('last',now());draw();toast(t('{0} records synchronized',q.length))}
+function exp(kind){const a=recs();let out,name='survey_export_'+now().slice(0,10);
+ if(kind==='json'){out=JSON.stringify({areas:areas(),records:a},null,1);name+='.json'}
+ else{out=['id,area,form,status,sync,collector,updated,data'].concat(a.map(r=>[r.id,r.area,r.form,r.status,r.sync,r.collector,r.updated,JSON.stringify(r.data)].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','))).join('\n');name+='.csv'}
+ const l=document.createElement('a');l.href=URL.createObjectURL(new Blob([out]));l.download=name;l.click();toast(t('{0} downloaded ({1} records)',name,a.length))}
+function draw(){const m=S.g('mode',null);if(!m)return pickRole();const AS=areas();if(!AS.length)return newArea();
+ if(!curArea())S.s('area',AS[0].id);const A=curArea(),all=recs(),f8=all.filter(r=>r.area===A.id&&r.form==='form8'),done=f8.filter(r=>r.status==='submitted').length,pol=all.find(r=>r.id===A.id+'_form8policy'),pend=all.filter(r=>r.status==='submitted'&&r.sync!=='done'),sy=all.filter(r=>r.status==='submitted');
+ app.innerHTML=`<div class=ctx><div><h1>${t('Hello, {0}',esc(user().name))}</h1><p>${t('Role')}: <b>${t(roleName(m))}</b>. ${t('Active area')}: <b>${esc(A.name)}</b>, ${esc(A.district)}, ${esc(A.state||'')}${m==='area'&&A.tribal?' ('+t('tribal area')+')':''}</p></div><button class=btn2 id=cr>${t('Change role')}</button></div>
+ <div class=card><div class=row><select id=as aria-label="${esc(t('Select area'))}">${AS.map(a=>`<option value="${a.id}"${a.id===A.id?' selected':''}>${esc(a.name)}, ${esc(a.district)}</option>`).join('')}</select><button class=btn2 id=na>${t('Register new area')}</button></div></div>
+ ${m==='area'?`<h2>${t('Area forms (once per area)')}</h2><div class=grid>${[1,2,3,4,5,6,7].map(n=>{const s=status(A,n),c=all.filter(r=>r.area===A.id&&r.form==='form'+n).length;return`<div class=card><b>${t('Form {0}',n)}</b><br>${t(NAMES[n-1])}<p><span class="badge ${s[1]}">${t(s[0])}</span> <small>${n===7&&!A.tribal?t('Optional, tribal areas only'):n===3||n===4?t('{0} record(s)',c):''}</small></p><a class=btn2 href="form${n}.html">${t(s[1]?'Open':'Start')} ${t('Form {0}',n)}</a></div>`}).join('')}</div>`
+ :`<h2>${t('Community survey (one per person)')}</h2><div class=card><b>${t('Form {0}',8)}: ${t('{0} people surveyed',done)}</b>. ${t('{0} in progress',f8.length-done)}.<p>${t('Forward-looking / policy input')}: <span class="badge ${pol?pol.status:''}">${pol?stLabel(pol.status):t('Not started')}</span></p><div class=row><a class=btn href="form8.html?rec=new">${t('Start new person survey')}</a><a class=btn2 href="form8.html">${t('Continue / view surveys')}</a></div></div>`}
+ <h2>${t('Sync center')}</h2><div class=card><p>${t('{0} record(s) waiting.',pend.length)} ${t('Last sync')}: ${fmt(S.g('last',null))}. ${t('Network')}: ${t(navigator.onLine?'online':'offline')}.</p><div class=row><button class=btn id=sy>${t(pend.some(r=>r.sync==='failed')?'Retry all':'Sync now')}</button><button class=btn2 id=ej>${t('Export JSON')}</button><button class=btn2 id=ec>${t('Export CSV')}</button></div>
+ ${sy.length?sy.map(r=>`<div class=item><div><b>${esc(r.data.name||r.form.toUpperCase())}</b><br><small>${esc(r.id)}</small></div><span class="badge ${r.sync}">${t(r.sync)}</span>${r.sync==='failed'?`<button class=btn2 data-r="${r.id}">${t('Retry')}</button>`:''}</div>`).join(''):`<p class=note>${t('Submitted forms will appear here.')}</p>`}</div>`;
+ $('#cr').onclick=()=>{if(confirm(t('Change role? Your saved data stays on this device.'))){localStorage.removeItem('sv.mode');location.reload()}};
+ $('#as').onchange=e=>{S.s('area',e.target.value);toast(t('Area changed'));location.reload()};$('#na').onclick=newArea;$('#sy').onclick=sync;$('#ej').onclick=()=>exp('json');$('#ec').onclick=()=>exp('csv');
+ app.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{setSync(b.dataset.r,'pending');sync()})}
+draw();addEventListener('online',()=>{toast(t('Back online. Press Sync now to upload.'));draw()});addEventListener('offline',draw)}
+
+</script></body></html>

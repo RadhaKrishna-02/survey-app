@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Form 2</title><link rel="stylesheet" href="css/style.css"></head><body><div id="nav"></div><main id="app" class="wrap"></main><script src="js/data.js"></script><script src="js/te.js"></script><script src="js/app.js"></script><script>
+const REL=['Hindu','Muslim','Christian','Sikh','Buddhist','Jain','Other Religions','Religion Not Stated'];
+Form.run({id:'form2',title:'Form 2: Religious composition',next:'form3',sections:[
+ {title:'A. Religious population',fields:[F.tbl('comp','Religious composition',[N('tot','Total population'),N('m','Male'),N('f','Female'),R('pct','% of total')],{rows:REL.concat(['Total']),lh:'Religion / community',calc:calc({sum:['tot','m','f'],pct:['tot','pct']}),h:'The Total row and the percentages are calculated automatically.'}),
+  F.tbl('hist','Historical change in religious population (%)',[N('y91','1991 (%)'),N('y01','2001 (%)'),N('y11','2011 (%)'),N('late','Latest available (%)'),N('chg','Change (%)')],{rows:['Hindu','Muslim','Christian','Sikh','Buddhist','Jain','Other'],lh:'Community'}),
+  F.rad('changed','Significant changes in religious composition in the last 20-30 years?',['Yes','No','Slight Change',"Don't Know"],{req:true}),F.ta('changes','If yes, main changes observed',{show:d=>d.changed==='Yes'}),
+  F.chk('src','Source of information',['Census of India','District Census Handbook','Government Report','Local Records','Field Survey','Other'],{req:true})]},
+ {title:'B. Religious places',fields:[F.tbl('places','Information on religious places (add a row per place)',[C('type','Type'),C('rel','Religion'),N('yr','Year established'),C('s01','Status around 2001'),C('s11','Status around 2011'),C('s26','Status in 2026'),C('chg','Change')]),
+  F.tbl('counts','Change in number of religious places',[N('y91','1991'),N('y01','2001'),N('y11','2011'),N('y21','2021-2026'),C('fs','Field survey')],{rows:['Temples','Mosques','Churches','Gurudwaras','Jain Derasars','Buddhist Viharas','Others','Total'],lh:'Type',h:'Do not enter 2021 as official Census data. Mention the source year if known.'})]}]});
+
+</script></body></html>

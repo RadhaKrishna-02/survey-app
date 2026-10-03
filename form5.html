@@ -1,0 +1,7 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Form 5</title><link rel="stylesheet" href="css/style.css"></head><body><div id="nav"></div><main id="app" class="wrap"></main><script src="js/data.js"></script><script src="js/te.js"></script><script src="js/app.js"></script><script>
+const cols=[C('h','Hindu','number'),C('m','Muslim','number'),C('c','Christian','number'),C('r','Reserved seat? If so, which')];
+Form.run({id:'form5',title:'Form 5: Political representation',next:'form6',sections:[
+ {title:'Panchayat members',fields:[F.nm('year','Year of study',{req:true}),F.tbl('pan','Rural / Panchayat members',cols,{rows:['2025','2019','2014','2006'],lh:'Year'})]},
+ {title:'Ward members',fields:[F.tbl('ward','Details of ward members',cols,{rows:['2026','2021','2016','2014'],lh:'Year'}),F.ta('aim','Aim / notes')]}]});
+
+</script></body></html>

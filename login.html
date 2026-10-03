@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Login</title><link rel="stylesheet" href="css/style.css"></head><body>
+<main class="login"><div class="card"><h1>Demography Survey</h1><p class="note">Data collector sign in</p>
+<div id="msg" role="alert"></div>
+<form id="f" novalidate>
+<div class="fld"><label for="u">Employee ID or username</label><input id="u" autocomplete="username"></div>
+<div class="fld"><label for="p">Password</label><input id="p" type="password" autocomplete="current-password"></div>
+<div class="row"><label class="opt"><input type="checkbox" id="show">Show password</label><label class="opt"><input type="checkbox" id="rem">Remember me</label></div>
+<p><button class="btn" id="go" style="width:100%">Sign in</button></p></form>
+<p><a href="#" id="fp">Forgot password?</a></p>
+<small>Demo: any ID with password <b>survey123</b>. Support: support@example.org. Version 1.0</small></div></main>
+<script>
+const $=s=>document.querySelector(s);let tries=+sessionStorage.tries||0;
+if(localStorage['sv.user'])location.replace('index.html');
+const say=(m,ok)=>$('#msg').innerHTML=m?`<div class="errbox" style="${ok?'background:#dff1e6;border-color:#1f7a45;color:#14532d':''}">${m}</div>`:'';
+$('#show').onchange=e=>$('#p').type=e.target.checked?'text':'password';
+$('#fp').onclick=e=>{e.preventDefault();say('Password reset: contact your supervisor or support@example.org to receive a reset code.',1)};
+$('#f').onsubmit=async e=>{e.preventDefault();const u=$('#u').value.trim(),p=$('#p').value;
+ if(tries>=5)return say('Account locked after 5 failed attempts. Contact support to unlock it.');
+ if(!u||!p)return say('Enter both your ID and password.');
+ if(!navigator.onLine)return say('No network. Demo sign in works offline only after a first login on this device.');
+ $('#go').disabled=true;$('#go').textContent='Signing in...';await new Promise(r=>setTimeout(r,700));
+ if(p!=='survey123'){tries++;sessionStorage.tries=tries;$('#go').disabled=false;$('#go').textContent='Sign in';return say(`Invalid ID or password. ${5-tries} attempts left.`)}
+ localStorage.setItem('sv.user',JSON.stringify({id:u,name:u.charAt(0).toUpperCase()+u.slice(1)}));location.href='index.html'};
+</script></body></html>

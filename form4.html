@@ -1,0 +1,6 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Form 4</title><link rel="stylesheet" href="css/style.css"></head><body><div id="nav"></div><main id="app" class="wrap"></main><script src="js/data.js"></script><script src="js/te.js"></script><script src="js/app.js"></script><script>
+Form.run({id:'form4',title:'Form 4: Cemetery, cremation and burial sites',repeat:true,titleKey:'name',newLabel:'Add site',add:'Add another',next:'form5',sections:[
+ {title:'Site details',fields:[F.tx('name','Name of site',{req:true}),F.rad('type','Type of place',['Cemetery','Cremation Ground','Burial Ground','Other'],{req:true}),F.tx('community','Related community'),F.nm('year','Year of establishment'),F.nm('area','Total area (sq. metres)'),F.gps('gps','GPS location')]},
+ {title:'Use and change',fields:[F.rad('use','Currently in use?',['Yes','No'],{req:true}),F.nm('count','Estimated burials / cremations in the last 10 years'),F.ta('chg','Change in use during the last 20 years'),F.rad('exp','Has the area of the site been expanded?',['Yes','No']),F.nm('expYear','Year of expansion',{show:d=>d.exp==='Yes'}),F.ta('expWhy','Reason for expansion',{show:d=>d.exp==='Yes'})]}]});
+
+</script></body></html>
